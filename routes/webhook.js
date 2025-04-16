@@ -32,7 +32,7 @@ async function markEventProcessed(event,plan) {
       id: event.id,
       created_at: new Date(event.created * 1000).toISOString(),
       email:  event.data.object.metadata.email,
-      plan:plan
+      plan:event.data.object.metadata.plan
     }]);
     
   if (error) {
@@ -55,14 +55,16 @@ router.post("/", express.raw({ type: "application/json" }), async (req, res) => 
   }
 
   try {
-    // 检查事件是否已处理
-    const isProcessed = await checkEventProcessed(event.id);
-    if (isProcessed) {
-      console.log(`Event ${event.id} already processed, skipping...`);
-      return res.json({ received: true });
-    }
+    
 
     if (event.type === "checkout.session.completed") {
+      // 检查事件是否已处理
+      const isProcessed = await checkEventProcessed(event.id);
+      if (isProcessed) {
+        console.log(`Event ${event.id} already processed, skipping...`);
+        return res.json({ received: true });
+      }
+      await markEventProcessed(event);
       const session = event.data.object;
       const email = session.metadata.email;
       const plan = session.metadata.plan;
@@ -123,7 +125,7 @@ router.post("/", express.raw({ type: "application/json" }), async (req, res) => 
         }
       }
       console.log(`✅ User ${email} subscribed, ${addCredits} credits granted.`);
-      await markEventProcessed(event,plan);
+      
     }
 
 
