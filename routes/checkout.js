@@ -6,19 +6,25 @@ dotenv.config();
 const router = express.Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-router.post("/create-checkout-session", async (req, res) => {
+router.post("/checkout", async (req, res) => {
+  const { email, plan } = req.body;
   try {
     const session = await stripe.checkout.sessions.create({
       mode: "subscription", // or "payment" for one-time
       line_items: [
         {
-          price: "price_1R9zuNCm9YpuNQ14dqbsNt7m", // ← 用你的 Stripe 价格ID（或写 product + unit_amount）
+          price: process.env.PRICE_ID,
           quantity: 1,
         },
       ],
-      customer_email: "capsfly7@gmail.com", // 可选
+      customer_email: email,
       success_url: "http://localhost:3000/success",
       cancel_url: "http://localhost:3000/cancel",
+      metadata: {
+        email: email,
+        plan:plan,
+        preferred_language:"python",
+      },
     });
 
     res.json({ url: session.url });
