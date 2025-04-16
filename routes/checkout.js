@@ -13,7 +13,7 @@ router.post("/checkout", async (req, res) => {
       mode: "subscription", // or "payment" for one-time
       line_items: [
         {
-          price: process.env.PRICE_ID,
+          price: plan==='monthly'?process.env.MONTHLY_PRICE_ID:process.env.YEARLY_PRICE_ID,
           quantity: 1,
         },
       ],

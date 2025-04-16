@@ -55,8 +55,6 @@ router.post("/", express.raw({ type: "application/json" }), async (req, res) => 
   }
 
   try {
-    
-
     if (event.type === "checkout.session.completed") {
       // 检查事件是否已处理
       const isProcessed = await checkEventProcessed(event.id);
